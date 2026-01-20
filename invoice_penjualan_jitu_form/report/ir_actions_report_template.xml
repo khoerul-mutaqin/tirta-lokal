@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <td style="text-align: right;">
+        <!-- 2025, terkait odoo ganti versi ke v.18 -->
+        <!-- <span t-esc="tax['amount_total']" t-options='{"widget": "float", "precision": 2}'/> -->
+        <span t-esc="tax['total_amount_currency']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+    </td>
+    <template id="report_invpenjualan_jitu_form">
+        <!-- Must call html_container -->
+        <t t-call="web.html_container">
+            <!-- foreach karena cetak ini bisa dilakukan centang dari luar -->
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="tax" t-value="doc.tax_totals"/>
+                <t t-set="company" t-value="doc.company_id"/>
+                <t t-set="formatted_date" t-value="''"/>
+                <t t-set="day_inv" t-value="''"/>
+                <t t-set="bulan_inv" t-value="''"/>
+                <t t-set="tahun_inv" t-value="''"/>
+                <t t-set="bulan_inv_display" t-value="''"/>
+                <t t-if="doc.invoice_date">
+                    <t t-set="formatted_date" t-value="doc.invoice_date.strftime('%d %B %Y')"/>
+                    <t t-set="day_inv" t-value="doc.invoice_date.strftime('%d')"/>
+                    <t t-set="bulan_inv" t-value="doc.invoice_date.strftime('%m')"/>
+                    <t t-set="tahun_inv" t-value="doc.invoice_date.strftime('%Y')"/>
+                    <t t-set="bulan_inv_display" t-value="doc.invoice_date.strftime('%B')"/>
+                    </t>
+                <!-- Setting up in header repeated in each page -->
+                <!-- 20 Juni 2024, pre printed tidak ada logo perusahaan -->
+                <!-- <div class="header" style="height: 180px"> -->
+                <!-- logo perusahaan di kanan atas -->
+                <!-- <img t-att-src="image_data_uri(company.logo)" style="max-height: 180px;float: right;" /> -->
+                <!-- </div> -->
+                <!-- <div class="page" style="font-size: 14px !important;"> -->
+                <div class="article" style="font-size: 12px !important;">
+                    <!-- karena setelah mencari kemana-mana tidak ditemukan cara memformat
+                            tampilan tanggal menjadi : 01 Agustus 2024 (dalam bahasa indonesia)
+                            maka digunakan cara manual, bila lang = 'id_ID' maka diterjemahkan
+                            manual bulannya -->
+                    <t t-if="lang == 'id_ID'">
+                        <t t-if="bulan_inv == '01'">
+                            <t t-set="bulan_inv_display" t-value="'Januari'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '02'">
+                            <t t-set="bulan_inv_display" t-value="'Februari'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '03'">
+                            <t t-set="bulan_inv_display" t-value="'Maret'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '04'">
+                            <t t-set="bulan_inv_display" t-value="'April'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '05'">
+                            <t t-set="bulan_inv_display" t-value="'Mei'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '06'">
+                            <t t-set="bulan_inv_display" t-value="'Juni'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '07'">
+                            <t t-set="bulan_inv_display" t-value="'Juli'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '08'">
+                            <t t-set="bulan_inv_display" t-value="'Agustus'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '09'">
+                            <t t-set="bulan_inv_display" t-value="'September'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '10'">
+                            <t t-set="bulan_inv_display" t-value="'Oktober'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '11'">
+                            <t t-set="bulan_inv_display" t-value="'November'"/>
+                            </t>
+                        <t t-elif="bulan_inv == '12'">
+                            <t t-set="bulan_inv_display" t-value="'Desember'"/>
+                            </t>
+                        <t t-set="formatted_date" t-value="day_inv + ' ' + bulan_inv_display + ' ' + tahun_inv"/>
+                        </t>
+                    <!-- Judul : FAKTUR PENJUALAN -->
+                    <!-- <div style="height: 130px; text-align: center; line-height: 130px;"> -->
+                    <div style="height: 70px; text-align: center; line-height: 70px;">
+                        <!-- <span style="font-weight: bold; text-decoration: underline; font-size:36px; vertical-align: middle;">FAKTUR PENJUALAN</span> -->
+                    </div>
+                    <!-- Informasi faktur penjualan -->
+                    <table style="width:100%; border-color: transparent;">
+                        <tr>
+                            <td style="width: 60%">
+                                <!-- <span t-out="tax"></span> -->
+                                <strong>Pembeli</strong>
+                            </td>
+                            <td>
+                                <table style="width:100%;border-color: transparent;">
+                                    <tr>
+                                        <td style="width: 45%">
+                                            <strong>No.</strong>
+                                        </td>
+                                        <td style="width: 3%">
+                                            <span>:</span>
+                                        </td>
+                                        <td>
+                                            <span t-out="doc.display_name"/>
+                                            <!-- <span><t t-out="doc"/></span> -->
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <!-- kolom kiri -->
+                            <td style="width: 60%">
+                                <table style="width:100%;border-color: transparent;">
+                                    <tr>
+                                        <td style="width: 25%">
+                                            <strong>Nama Customer</strong>
+                                        </td>
+                                        <td style="width: 2%">
+                                            <span>:</span>
+                                        </td>
+                                        <td>
+                                            <span t-out="doc.partner_id.display_name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 25%">
+                                            <strong>Alamat Customer</strong>
+                                        </td>
+                                        <td style="width: 2%">
+                                            <span>:</span>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <span t-out="doc.partner_id.street"/>
+                                            </div>
+                                            <t t-if="doc.partner_id.street2">
+                                                <div>
+                                                    <span t-out="doc.partner_id.street2"/>
+                                                </div>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 25%">
+                                            <strong>Kota, Propinsi</strong>
+                                        </td>
+                                        <td style="width: 2%">
+                                            <span>:</span>
+                                        </td>
+                                        <td>
+                                            <span t-out="doc.partner_id.city"/>
+                                            <span>,</span>
+                                            <span t-out="doc.partner_id.state_id.name"/>
+                                            <t t-if="doc.partner_id.zip and doc.partner_id.zip != '##'">
+                                                <!-- <span>(<t t-out="doc.partner_id.zip"/>)</span> -->
+                                                <span>
+                                                    <t t-out="doc.partner_id.zip"/>
+                                                </span>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 25%">
+                                            <strong>NPWP</strong>
+                                        </td>
+                                        <td style="width: 2%">
+                                            <span>:</span>
+                                        </td>
+                                        <td>
+                                            <span t-out="doc.partner_id.vat"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <!-- kolom kanan -->
+                            <td style="vertical-align: top">
+                                <table style="width:100%;border-color: transparent;">
+                                    <tr>
+                                        <td style="width: 45%">
+                                            <strong>Tanggal</strong>
+                                        </td>
+                                        <td style="width: 3%">
+                                            <span>:</span>
+                                        </td>
+                                        <td>
+                                            <span t-esc="formatted_date"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 45%">
+                                            <strong>No. PO</strong>
+                                        </td>
+                                        <td style="width: 3%">
+                                            <span>:</span>
+                                        </td>
+                                        <td>
+                                            <!-- <span t-out="doc.purchase_id.x_studio_no_dok"/> -->
+                                            <!-- <span t-out="doc.purchase_id.display_name"/> -->
+                                            <!-- <span>(ini dari field apa ?)</span> -->
+                                            <span t-out="doc.x_studio_no_po_customer"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 45%">
+                                            <strong>Termin Pembayaran</strong>
+                                        </td>
+                                        <td style="width: 3%">
+                                            <span>:</span>
+                                        </td>
+                                        <td>
+                                            <span t-out="doc.invoice_payment_term_id.display_name"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="margin-top: 12px; ">
+                        <!-- <span>Mohon dikirimkan barang sebagai berikut :</span> -->
+                    </div>
+                    <!-- heading tabel -->
+                    <table style="width:100%; margin-top: 10px; padding: 0px;">
+                        <tr>
+                            <th style="height: 40px; width: 16%; vertical-align: middle; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black; padding: 0px; margin: 0px;">
+                                <span>KUANTUM</span>
+                            </th>
+                            <th style="height: 40px; width: 40%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black; ">
+                                <span>NAMA BARANG</span>
+                            </th>
+                            <th style="height: 40px; width: 22%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">
+                                <div>HARGA SATUAN</div>
+                            </th>
+                            <th style="height: 40px; width: 22%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border: 1px solid black;">
+                                <div>TOTAL</div>
+                            </th>
+                        </tr>
+                    </table>
+                    <!-- baris maksimal dalam satu page dengan total-total -->
+                    <t t-set="max_row_dengan_total" t-value="8"/>
+                    <!-- baris maksimal dalam satu page tanpa total -->
+                    <t t-set="max_row_tanpa_total" t-value="7"/>
+                    <!-- baris maksimal dalam satu page setelah total sebelum notes -->
+                    <t t-set="max_row_sebelum_notes" t-value="max_row_dengan_total + 2"/>
+                    <t t-set="counter" t-value="1"/>
+                    <t t-set="isTotalPrinted" t-value="false"/>
+                    <!-- <t t-set="arr_len" t-value="len(doc.line_ids)"/> -->
+                    <t t-set="arr_len" t-value="0"/>
+                    <t t-set="page" t-value="1"/>
+                    <!-- detil -->
+                    <!-- untuk mendapatkan jumlah item product
+                             DAN
+                             nilai ppn dan pph -->
+                    <t t-set="total_ppn" t-value="0"/>
+                    <t t-set="total_pph2" t-value="0"/>
+                    <t t-set="total_pph4" t-value="0"/>
+                    <t t-foreach="doc.line_ids" t-as="line">
+                        <t t-if="line.product_id. and line.account_id.account_type == 'income'">
+                            <t t-set="arr_len" t-value="arr_len + 1"/>
+                            </t>
+                        <!-- <t t-foreach="line.account_id.tag_ids" t-as="tag">
+                                <t t-if="tag.display_name == 'PPN 11%'">
+                                    <t t-set="total_ppn" t-value="total_ppn + line.credit"/>
+                                </t>
+                                <t t-if="tag.display_name == 'PPH Pasal 23 2%'">
+                                    <t t-set="total_pph2" t-value="total_pph2 + line.debit"/>
+                                </t>
+                                <t t-if="tag.display_name == 'PPH Pasal 23 4%'">
+                                    <t t-set="total_pph4" t-value="total_pph4 + line.debit"/>
+                                </t>
+                            </t> -->
+                    </t>
+                    <!-- <t t-out="total_ppn"/>
+                        <t t-out="total_pph"/> -->
+                    <div t-foreach="doc.line_ids" t-as="line">
+                        <!-- <t t-out="line.is_account_reconcile"/>
+                            <span>-</span>
+                            <t t-out="line.is_downpayment"/>
+                            <span>-</span>
+                            <t t-out="line.is_refund"/>
+                            <span>-</span>
+                            <t t-out="line.is_storno"/>
+                            <span>-</span>
+                            <t t-out="line.reconciled"/>
+                            <span>-</span>
+                            <t t-out="line.blocked"/>
+                            <span>-</span>
+                            <t t-out="line.account_id.account_type"/>
+                            <span>-</span>
+                            <t t-out="line.account_id.reconcile"/>
+                            <span>-</span>
+                            <t t-out="line.account_id.used"/> -->
+                        <!-- <t t-out="line.product_id.categ_id.name"/> -->
+                        <!-- dibatasi hanya yg jurnal nya bertipe : income, karena
+                                 bila tidak akan muncul data data lain padahal di layar data
+                                 tsb tidak muncul -->
+                        <!-- <t t-if="line.product_id.id and line.account_id.account_type == 'income'"> -->
+                        <t t-if="(line.product_id.id and line.account_id.account_type == 'income') or (not line.product_id.id and line.account_id.account_type == 'income')">
+                            <table style="width:100%; border-left: 1px solid black; border-bottom: 1px solid black;">
+                                <tr>
+                                    <td style="width: 16%; border-right: 1px solid black; padding: 0px; margin: 0px; vertical-align: middle;">
+                                        <div style="text-align: center;">
+                                            <t t-if="line.product_id.categ_id.name != 'Diskon'">
+                                                <t t-if="line.product_id.id">
+                                                    <span t-out="line.quantity" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                                    <span t-out="line.product_uom_id.display_name"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-out="line.quantity" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 0}"/>
+                                                </t>
+                                            </t>
+                                        </div>
+                                    </td>
+                                    <td style="width: 40%; border-right: 1px solid black; vertical-align: middle; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px;">
+                                        <!-- <t t-out="line.product_id.display_name"/> -->
+                                        <t t-if="line.product_id.display_name">
+                                            <t t-out="line.product_id.display_name"/>
+                                            </t>
+                                        <t t-else="">
+                                            <span t-out="line.name"/>
+                                        </t>
+                                    </td>
+                                    <td style="width: 22%; border-right: 1px solid black; vertical-align: middle; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px;">
+                                        <table style="width: 100%;border-color: transparent;">
+                                            <tr>
+                                                <td style="width: 20px; text-align: right;">
+                                                    <span t-out="doc.currency_id.symbol"/>
+                                                </td>
+                                                <td style="text-align: right;">
+                                                    <span t-out="line.price_unit" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="width: 22%; border-right: 1px solid black; vertical-align: middle; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px;">
+                                        <table style="width: 100%;border-color: transparent;">
+                                            <tr>
+                                                <td style="width: 20px; text-align: right">
+                                                    <span t-out="doc.currency_id.symbol"/>
+                                                </td>
+                                                <td style="text-align: right;">
+                                                    <span t-out="line.price_subtotal" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            <!-- tiap 12 item berdasarkan ukuran kertas A4 utk style detil ini,
+                                    harus pindah halaman -->
+                            <!-- 20 Juni 2024, ternyata ukuran kertasnya pre printed dan kecil : 21.3 cm x 16.3 cm
+                                    jadi ngga bisa 12 item, hanya 4 item saja per page -->
+                            <!-- bila baris (counter) adalah data terakhir dan merupakan baris batas dimana total total masih muat untuk dicetak -->
+                            <t t-if="counter == max_row_dengan_total">
+                                <t t-if="counter == arr_len">
+                                    <!-- cetak total total -->
+                                    <table style="width:100%; border-left: 1px solid black; border-bottom: 1px solid black;">
+                                        <tr>
+                                            <!-- ini 60.1 atau 60 sesuaikan dengan yg di atas, miring atau tidak -->
+                                            <!-- <td rowspan="4" style="width: 56%; border-right: 1px solid black; padding: 10px; margin: 0px; vertical-align: top; text-align: left;"> -->
+                                            <t t-set="tax_labels" t-value="doc.get_all_tax_labels(doc)"/>
+                                            <t t-set="rowspan_count" t-value="len(tax_labels)"/>
+                                            <td rowspan="2" style="width: 56%; border-right: 1px solid black; padding: 10px; margin: 0px; vertical-align: top; text-align: left;">
+                                                <div style="height: 100%;">
+                                                    <div>
+                                                        <span>Terbilang :</span>
+                                                    </div>
+                                                    <div>
+                                                        <t t-set="doc" t-value="doc.with_context(lang='id_ID')"/>
+                                                        <span t-esc="doc.currency_id.amount_to_text(tax['total_amount_currency'])"/>
+                                                        <!--<span t-out="doc.amount_total_words"/>-->
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 22%; border-top: 1px solid black; border-right: 1px solid black; vertical-align: middle; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px;">
+                                                    Total
+                                                </td>
+                                            <td style="width: 22%; border-top: 1px solid black; border-right: 1px solid black; vertical-align: middle; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px;">
+                                                <table style="width: 100%;border-color: transparent;">
+                                                    <tr>
+                                                        <td style="width: 20px; text-align: right">
+                                                            <span t-out="doc.currency_id.symbol"/>
+                                                        </td>
+                                                        <td style="text-align: right;">
+                                                            <!-- 2025, terkait odoo ganti versi ke v.18 -->
+                                                            <!-- <span t-esc="tax['amount_total']" t-options='{"widget": "float", "precision": 2}'/> -->
+                                                            <span t-esc="tax['total_amount_currency']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <t t-set="isTotalPrinted" t-value="true"/>
+                                    <!-- <div style="padding: 0px; margin: 0px; dislay: contents;page-break-before: always;"/> -->
+                                </t>
+                                <t t-else="">
+                                    <t t-set="counter" t-value="counter + 1"/>
+                                    </t>
+                            </t>
+                            <t t-elif="counter &gt; (max_row_tanpa_total - 1)">
+                                <!-- bila baris (counter) lebih dari 3 (batas baris yg dapat dicetak per page) -->
+                                <!-- pindah halaman -->
+                                <div style="padding: 0px; margin: 0px; dislay: contents;page-break-before: always;"/>
+                                <t t-if="counter == arr_len">
+                                    </t>
+                                <t t-else="">
+                                    <t t-set="page" t-value="page + 1"/>
+                                    </t>
+                                <!-- tulis judul dan heading tabel -->
+                                <!-- Judul -->
+                                <!-- <div style="height: 130px; text-align: center; line-height: 130px;"> -->
+                                <div style="height: 70px; text-align: center; line-height: 70px;">
+                                    <!-- <span style="font-weight: bold; text-decoration: underline; font-size:36px; vertical-align: middle;">FAKTUR PENJUALAN</span> -->
+                                </div>
+                                <t t-if="counter != arr_len">
+                                    <!-- heading tabel -->
+                                    <table style="width:100%; margin-top: 20px; padding: 0px;">
+                                        <tr>
+                                            <th style="height: 40px; width: 16%; vertical-align: middle; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black; padding: 0px; margin: 0px;">
+                                                <span>KUANTUM</span>
+                                            </th>
+                                            <th style="height: 40px; width: 40%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black; ">
+                                                <span>NAMA BARANG</span>
+                                            </th>
+                                            <th style="height: 40px; width: 22%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">
+                                                <div>HARGA SATUAN</div>
+                                            </th>
+                                            <th style="height: 40px; width: 22%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border: 1px solid black;">
+                                                <div>TOTAL</div>
+                                            </th>
+                                        </tr>
+                                    </table>
+                                </t>
+                                <t t-set="counter" t-value="1"/>
+                                </t>
+                            <t t-else="">
+                                <t t-set="counter" t-value="counter + 1"/>
+                                </t>
+                        </t>
+                    </div>
+                    <t t-if="not isTotalPrinted">
+                        <!-- <t t-if="counter > 5"> -->
+                        <t t-if="counter &gt; max_row_dengan_total">
+                            <!-- pindah halaman -->
+                            <div style="padding: 0px; margin: 0px; dislay: contents;page-break-before: always;"/>
+                            <!-- judul -->
+                            <!-- <div style="height: 130px; text-align: center; line-height: 130px;"> -->
+                            <div style="height: 70px; text-align: center; line-height: 70px;">
+                                <!-- <span style="font-weight: bold; text-decoration: underline; font-size:36px; vertical-align: middle;">FAKTUR PENJUALAN</span> -->
+                            </div>
+                        </t>
+                        <!-- total-total -->
+                        <table style="width:100%; border-left: 1px solid black; border-bottom: 1px solid black;">
+                            <tr>
+                                <!-- ini 60.1 atau 60 sesuaikan dengan yg di atas, miring atau tidak -->
+                                <!-- <td rowspan="4" style="width: 56%; border-right: 1px solid black; padding: 10px; margin: 0px; vertical-align: top; text-align: left;"> -->
+                                <td style="width: 56%; border-right: 1px solid black; padding: 10px; margin: 0px; vertical-align: top; text-align: left;">
+                                    <div style="height: 100%;">
+                                        <div>
+                                            <span>Terbilang :</span>
+                                        </div>
+                                        <div>
+                                            <t t-set="doc" t-value="doc.with_context(lang='id_ID')"/>
+                                            <span t-esc="doc.currency_id.amount_to_text(tax['total_amount_currency'])"/>
+                                            <!--<span t-out="doc.amount_total_words"/>-->
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="width: 22%; border-right: 1px solid black; vertical-align: middle; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px;">
+                                        Total
+                                    </td>
+                                <td style="width: 22%; border-right: 1px solid black; vertical-align: middle; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px;">
+                                    <table style="width: 100%;border-color: transparent;">
+                                        <tr>
+                                            <td style="width: 20px; text-align: right">
+                                                <span t-out="doc.currency_id.symbol"/>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <!-- 2025, terkait odoo ganti versi ke v.18 -->
+                                                <!-- <span t-esc="tax['amount_total']" t-options='{"widget": "float", "precision": 2}'/> -->
+                                                <span t-esc="tax['total_amount_currency']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </t>
+                    <t t-else="">
+                        <!-- untuk memberi jarak bila perlu -->
+                        <!-- <div style="height: 250px;">
+                            </div> -->
+                    </t>
+                    <!-- ini tidak perlu karena sudah diperhitungkan di atas berapa baris dalam satu page
+                             yang memungkinkan total tertulis lengkap (lengkap = dengan 2 baris keterangan rekening) -->
+                    <!-- <t t-if="counter > 7"> -->
+                    <!-- <t t-out="counter"/>
+                        <t t-out="max_row_sebelum_notes"/> -->
+                    <t t-if="counter &gt; max_row_sebelum_notes">
+                        <p style="page-break-before:always;"/>
+                        <div style="padding-top: 25px"/>
+                    </t>
+                    <div style="margin-top: 12px;">
+                        <!-- <t t-raw="doc.narration"/> -->
+                        <!-- kalau lebih dari satu gimana ?
+                                 atas nama : diasumsikan nama perusahaan, jadi harusnya sama
+                                             masak satu perusahaan pembayaran nya ke nama pribadi
+                                             beda beda pula
+                            -->
+                        <t t-set="array_holder" t-value="[]"/>
+                        <t t-set="array_rekening" t-value="[]"/>
+                        <t t-foreach="doc.x_studio_rekening_bank_1" t-as="bank">
+                            <!-- cari ke array_holder apakah ada -->
+                            <t t-set="found" t-value="false"/>
+                            <t t-foreach="array_holder" t-as="holder">
+                                <t t-if="holder == bank.acc_holder_name">
+                                    <t t-set="found" t-value="true"/>
+                                    </t>
+                            </t>
+                            <t t-if="not found">
+                                <t t-set="array2Dummy" t-value="array_holder.append(bank.acc_holder_name)"/>
+                                </t>
+                            <t t-set="rek" t-value="{'holder': bank.acc_holder_name, 'bank': bank.bank_name, 'cabang': bank.x_studio_cabang, 'acc_number': bank.acc_number, 'curr': bank.currency_id.display_name}"/>
+                            <t t-set="array2Dummy" t-value="array_rekening.append(rek)"/>
+                            </t>
+                        <t t-foreach="array_holder" t-as="holder">
+                            <div>
+                                <span>No. Rekening atas nama</span>
+                                <t t-out="holder"/>
+                                <t t-set="no_urut" t-value="1"/>
+                                <t t-foreach="array_rekening" t-as="rek">
+                                    <t t-if="holder == rek['holder']">
+                                        <table style="width:100%; margin-top: 6px;border-color: transparent;">
+                                            <tr>
+                                                <td style="width: 25px; text-align: left;">
+                                                    <t t-out="no_urut"/>
+                                                    <span>.</span>
+                                                </td>
+                                                <td>
+                                                    <span>Bank</span>
+                                                    <t t-out="rek['bank']"/>
+                                                    <span>-</span>
+                                                    <t t-out="rek['cabang']"/>
+                                                    <span>A/C No.</span>
+                                                    <t t-out="rek['acc_number']"/>
+                                                    <t t-if="rek['curr']">
+                                                        <span>(
+                                                            <t t-out="rek['curr']"/>)
+                                                        </span>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <t t-set="no_urut" t-value="no_urut + 1"/>
+                                        <!-- <div>
+                                                <span t-esc="rek['bank']"/>
+                                                <span t-esc="rek['cabang']"/>
+                                                <span t-esc="rek['acc_number']"/>
+                                                <span t-esc="rek['curr']"/>
+                                            </div> -->
+                                    </t>
+                                </t>
+                            </div>
+                        </t>
+                        <!-- <t t-set="rekening" t-value="''"/>
+                            <t t-foreach="doc.x_studio_rekening_bank_1" t-as="bank">
+                                <t t-if="rekening == ''">
+                                    <t t-set="rekening" t-value="bank.acc_holder_name"/>
+                                </t>
+                                <t t-else="">
+                                </t>
+                            </t>
+                            <div>
+                                <span>No. Rekening atas nama </span><t t-out="rekening"/>
+                            </div>
+
+                            <t t-set="no_urut" t-value="1"/>
+                            <div t-foreach="doc.x_studio_rekening_bank_1" t-as="bank">
+
+                                <table style="width:100%; margin-top: 10px;border-color: transparent;">
+                                    <tr>
+                                        <td style="width: 25px; text-align: left;">
+                                            <t t-out="no_urut"/><span>.</span>
+                                        </td>
+                                        <td>
+                                            <span>Bank </span>
+                                            <t t-out="bank.bank_name"/>
+                                            <span> - </span>
+                                            <t t-out="bank.x_studio_cabang"/>
+                                            <span> A/C No. </span>
+                                            <t t-out="bank.acc_number"/>
+                                            <t t-if="bank.currency_id.display_name">
+                                                <span>(<t t-out="bank.currency_id.display_name"/>)</span>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <t t-set="no_urut" t-value="no_urut + 1"/>
+                            </div> -->
+                        <!-- <t t-out="doc.x_studio_rekening_bank_1.display_name"/>
+                            <t t-out="doc.x_studio_rekening_bank_1.bank_name"/>
+                            <t t-out="doc.x_studio_rekening_bank_1.acc_number"/> -->
+                    </div>
+                    <!-- deskripsi kondisi -->
+                    <!-- <table style="width:100%; margin-top: 10px;border-color: transparent;">
+                            <tr>
+                                <td style="width: 25px; text-align: left;">
+                                    1.
+                                </td>
+                                <td>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 25px; text-align: left;">
+                                    2.
+                                </td>
+                                <td>
+                                </td>
+                            </tr>
+                        </table> -->
+                </div>
+                <!-- Footer part: repeated in each page -->
+                <!-- tidak bisa mengetahui page terakhir atau tidak di footer
+                         karena, footer di render setelah content dari page -->
+                <!-- oleh sebab itu, footer digunkan hanya untuk banner gambar saja -->
+                <div class="footer">
+                    <!-- <div style="height: 50px; border:1px solid gray;">
+                            image placed here
+                        </div> -->
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
