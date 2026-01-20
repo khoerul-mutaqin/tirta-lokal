@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Purchase Order -->
+    <record id="report_invpenjualan_jitu_form" model="ir.actions.report">
+        <field name="name">Faktur Penjualan JITU</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">purchase_order_form.report_purchaseorder2_form</field>
+        <field name="report_file">purchase_order_form.report_purchaseorder2_form</field>
+        <field name="print_report_name">'Purchase Order - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="purchase.model_purchase_order" />
+        <field name="binding_type">report</field>
+        <field name="report_type">qweb-html</field>        
+        <!-- <field name="attachment" /> -->
+        <!-- <field name="paperformat_id" ref="cdp_astrindro_printout.paperformat_a4_astrindo_custom" />              -->
+        <!-- <field name="domain" eval="[('move_type', '!=', 'entry')]" /> -->
+    </record>
+</odoo>

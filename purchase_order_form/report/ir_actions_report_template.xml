@@ -1,0 +1,654 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_purchaseorder2_form">
+        <!-- <style>
+                table{
+                    border-collapse: collapse;
+                }
+            </style> -->
+        <!-- Must call html_container -->
+        <t t-call="web.html_container">
+            <!-- <t t-call="purchase_order_form.date_template"/> -->
+            <!-- foreach karena cetak ini bisa dilakukan centang dari luar -->
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="tax" t-value="doc.tax_totals"/>
+                <t t-set="company" t-value="doc.company_id"/>
+                <t t-set="formatted_date" t-value="''"/>
+                <t t-set="formatted_date_planned" t-value="''"/>
+                <t t-set="day_order" t-value="''"/>
+                <t t-set="bulan_order" t-value="''"/>
+                <t t-set="tahun_order" t-value="''"/>
+                <t t-set="bulan_order_display" t-value="''"/>
+                <t t-set="day_planned" t-value="''"/>
+                <t t-set="tahun_planned" t-value="''"/>
+                <t t-set="bulan_planned" t-value="''"/>
+                <t t-set="bulan_planned_display" t-value="''"/>
+                <!-- <t t-if="doc.date_approve">
+                        <t t-set="formatted_date" t-value="doc.date_approve.strftime('%d %B %Y')" />
+
+                        <t t-set="day_order" t-value="doc.date_approve.strftime('%d')" />
+                        <t t-set="bulan_order" t-value="doc.date_approve.strftime('%m')" />
+                        <t t-set="tahun_order" t-value="doc.date_approve.strftime('%Y')" />
+                        <t t-set="bulan_order_display" t-value="doc.date_approve.strftime('%B')" />
+                    </t> -->
+                <t t-if="doc.x_studio_created_on">
+                    <t t-set="formatted_date" t-value="doc.x_studio_created_on.strftime('%d %B %Y')"/>
+                    <t t-set="day_order" t-value="doc.x_studio_created_on.strftime('%d')"/>
+                    <t t-set="bulan_order" t-value="doc.x_studio_created_on.strftime('%m')"/>
+                    <t t-set="tahun_order" t-value="doc.x_studio_created_on.strftime('%Y')"/>
+                    <t t-set="bulan_order_display" t-value="doc.x_studio_created_on.strftime('%B')"/>
+                    </t>
+                <t t-if="doc.date_planned">
+                    <t t-set="formatted_date_planned" t-value="doc.date_planned.strftime('%d %B %Y')"/>
+                    <t t-set="day_planned" t-value="doc.date_planned.strftime('%d')"/>
+                    <t t-set="bulan_planned" t-value="doc.date_planned.strftime('%m')"/>
+                    <t t-set="tahun_planned" t-value="doc.date_planned.strftime('%Y')"/>
+                    <t t-set="bulan_planned_display" t-value="doc.date_planned.strftime('%B')"/>
+                    </t>
+                <!-- <div class="backgroundimage" style="position:absolute;opacity:1;font-size:3em;width:100%;height:100%;z-index:-1;border: 1px solid black;object-fit: cover;"> -->
+                <!-- <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e/u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC/afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V/9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V/S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3/zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII="  style="width: 200px; height: 200px; object-fit: cover;"/> -->
+                <!-- <img src="" style="width: 100%; height: 100%; object-fit: cover;"/> -->
+                <!-- <div class="backgroundimage" style="position:absolute;opacity:1;font-size:3em;height:100%;z-index:-1;border: 1px solid black;object-fit: cover;">
+                        <img t-att-src="image_data_uri(company.x_studio_binary_field_6h7_1hrq3q415)"/>
+                    </div> -->
+                <!-- <div class="backgroundimage" style="position:absolute;opacity:1;font-size:3em;width:98%;height:99%;z-index:-1;border: 1px solid black;overflow: hidden;">
+                        <img t-att-src="image_data_uri(company.x_studio_binary_field_6h7_1hrq3q415)" style="width: 100%;"/>
+                    </div> -->
+                <!-- <div class="backgroundimage" style="position:absolute;opacity:1;font-size:3em;width:98%;height:99%;z-index:-1;overflow: hidden;">
+                        <img t-att-src="image_data_uri(company.x_studio_binary_field_6h7_1hrq3q415)" style="width: 100%;"/>
+                    </div> -->
+                <!-- Setting up in header repeated in each page -->
+                <!-- <div class="header" style="height: 180px"> -->
+                <!-- logo perusahaan di kanan atas -->
+                <!-- <img t-att-src="image_data_uri(company.logo)" style="max-height: 180px;float: right;" /> -->
+                <!-- </div> -->
+                <!-- https://stackoverflow.com/questions/39559665/css-background-image-shrink-to-fit-fixed-size-div -->
+                <style>
+                        .bg_image {
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        -webkit-background-size: contain;
+                        -moz-background-size: contain;
+                        -o-background-size: contain;
+                        background-size: cover;
+
+                        height: 100%;
+                        width: 100%;
+                        }
+                    </style>
+                <!-- <div class="article"> -->
+                <div class="page" style="padding: 0px; margin: 0px;">
+                    <div class="bg_image" t-att-style="'height: 1325px; width: 100%; position: absolute; opacity: 1; z-index: -1; background-image: url(' + image_data_uri(company.x_studio_binary_field_6h7_1hrq3q415) + ');'">
+                        </div>
+                    <!-- <t t-set="locale">id_ID.UTF-8</t>
+                        <t t-esc="doc.date_order.strftime('%d %B %Y')"/> -->
+                    <!-- karena setelah mencari kemana-mana tidak ditemukan cara memformat
+                            tampilan tanggal menjadi : 01 Agustus 2024 (dalam bahasa indonesia)
+                            maka digunakan cara manual, bila lang = 'id_ID' maka diterjemahkan
+                            manual bulannya -->
+                    <t t-if="lang == 'id_ID'">
+                        <t t-if="bulan_order == '01'">
+                            <t t-set="bulan_order_display" t-value="'Januari'"/>
+                            </t>
+                        <t t-elif="bulan_order == '02'">
+                            <t t-set="bulan_order_display" t-value="'Februari'"/>
+                            </t>
+                        <t t-elif="bulan_order == '03'">
+                            <t t-set="bulan_order_display" t-value="'Maret'"/>
+                            </t>
+                        <t t-elif="bulan_order == '04'">
+                            <t t-set="bulan_order_display" t-value="'April'"/>
+                            </t>
+                        <t t-elif="bulan_order == '05'">
+                            <t t-set="bulan_order_display" t-value="'Mei'"/>
+                            </t>
+                        <t t-elif="bulan_order == '06'">
+                            <t t-set="bulan_order_display" t-value="'Juni'"/>
+                            </t>
+                        <t t-elif="bulan_order == '07'">
+                            <t t-set="bulan_order_display" t-value="'Juli'"/>
+                            </t>
+                        <t t-elif="bulan_order == '08'">
+                            <t t-set="bulan_order_display" t-value="'Agustus'"/>
+                            </t>
+                        <t t-elif="bulan_order == '09'">
+                            <t t-set="bulan_order_display" t-value="'September'"/>
+                            </t>
+                        <t t-elif="bulan_order == '10'">
+                            <t t-set="bulan_order_display" t-value="'Oktober'"/>
+                            </t>
+                        <t t-elif="bulan_order == '11'">
+                            <t t-set="bulan_order_display" t-value="'November'"/>
+                            </t>
+                        <t t-elif="bulan_order == '12'">
+                            <t t-set="bulan_order_display" t-value="'Desember'"/>
+                            </t>
+                        <t t-set="formatted_date" t-value="day_order + ' ' + bulan_order_display + ' ' + tahun_order"/>
+                        <t t-if="bulan_planned == '01'">
+                            <t t-set="bulan_planned_display" t-value="'Januari'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '02'">
+                            <t t-set="bulan_planned_display" t-value="'Februari'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '03'">
+                            <t t-set="bulan_planned_display" t-value="'Maret'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '04'">
+                            <t t-set="bulan_disbulan_planned_displayplay" t-value="'April'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '05'">
+                            <t t-set="bulan_planned_display" t-value="'Mei'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '06'">
+                            <t t-set="bulan_planned_display" t-value="'Juni'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '07'">
+                            <t t-set="bulan_planned_display" t-value="'Juli'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '08'">
+                            <t t-set="bulan_planned_display" t-value="'Agustus'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '09'">
+                            <t t-set="bulan_planned_display" t-value="'September'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '10'">
+                            <t t-set="bulan_planned_display" t-value="'Oktober'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '11'">
+                            <t t-set="bulan_planned_display" t-value="'November'"/>
+                            </t>
+                        <t t-elif="bulan_planned == '12'">
+                            <t t-set="bulan_planned_display" t-value="'Desember'"/>
+                            </t>
+                        <t t-set="formatted_date_planned" t-value="day_planned + ' ' + bulan_planned_display + ' ' + tahun_planned"/>
+                        </t>
+                    <!-- <t t-esc="lang"/>
+                        <t t-esc="bulan_order"/>
+                        <t t-esc="bulan_order_display"/>
+                        <t t-esc="bulan_planned_display"/> -->
+                    <!-- Judul : PURCHASE ORDER -->
+                    <div style="height: 130px; text-align: center; line-height: 130px; padding-top: 120px;">
+                        <span style="font-weight: bold; text-decoration: underline; font-size:36px; vertical-align: middle;">
+                                PURCHASE ORDER
+                            </span>
+                    </div>
+                    <!-- Informasi bon purchase order -->
+                    <table style="width:95%; border-color: transparent; margin-left: auto; margin-right: auto;">
+                        <tr>
+                            <td style="width: 51%">
+                                </td>
+                            <td>
+                                <strong style="margin-left: 3px;">Kepada Yth:</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <!-- kolom nomor dokumen, tanggal, no. PO -->
+                            <td style="width: 51%">
+                                <table style="width:100%;border-color: transparent;">
+                                    <tr>
+                                        <td style="width: 18%">
+                                            <strong>No. Dok.</strong>
+                                        </td>
+                                        <td>
+                                            <span>:</span>
+                                            <span t-out="doc.x_studio_no_dok"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 18%">
+                                            <strong>Tanggal</strong>
+                                        </td>
+                                        <td>
+                                            <span>:</span>
+                                            <span t-esc="formatted_date"/>
+                                            <!-- <span t-esc="formatted_date_planned"/> -->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 18%">
+                                            <strong>No. PO.</strong>
+                                        </td>
+                                        <td>
+                                            <span>:</span>
+                                            <span t-out="doc.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 18%">
+                                            <strong>No. SPB.</strong>
+                                        </td>
+                                        <td>
+                                            <span>:</span>
+                                            <span t-out="doc.origin"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <!-- kolom Kepada Yth. -->
+                            <td style="vertical-align: top">
+                                <table style="width:100%;border-color: transparent;">
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <span/>
+                                                <strong t-out="doc.partner_id.commercial_company_name"/>
+                                            </div>
+                                            <div>
+                                                <strong>Up.</strong>
+                                                <strong t-out="doc.partner_id.name"/>
+                                            </div>
+                                            <div>
+                                                <strong t-out="doc.partner_id.street"/>
+                                            </div>
+                                            <div>
+                                                <strong t-out="doc.partner_id.city"/>
+                                                <t t-if="doc.partner_id.state_id.name">
+                                                    <span>,</span>
+                                                    <strong t-out="doc.partner_id.state_id.name"/>
+                                                </t>
+                                            </div>
+                                            <t t-if="doc.partner_id.phone">
+                                                <strong>Telp :</strong>
+                                                <span/>
+                                                <strong t-out="doc.partner_id.phone"/>
+                                            </t>
+                                            <t t-if="doc.partner_id.email">
+                                                <strong>Email :</strong>
+                                                <span/>
+                                                <strong t-out="doc.partner_id.email"/>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <!-- <tr>
+                                            <td>
+                                                <t t-if="doc.partner_id.phone">
+                                                    <strong>Telp.</strong>
+                                                    <span></span><strong t-out="doc.partner_id.phone"/>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <t t-if="doc.partner_id.email">
+                                                    <strong>Email</strong>
+                                                    <span></span><strong t-out="doc.partner_id.email"/>
+                                                </t>
+                                            </td>
+                                        </tr> -->
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td rowspan="1" colspan="2">
+                                <strong style="margin-left: 3px;">Waktu Pembayaran</strong>
+                                <span>:</span>
+                                <span t-out="doc.payment_term_id.name"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="margin-top: 10px; margin-left: 25px;">
+                        <span>Mohon dikirimkan barang sebagai berikut :</span>
+                    </div>
+                    <!-- heading tabel -->
+                    <table style="width:95%; margin-left: auto; margin-right: auto; margin-top: 10px; padding: 0px; border-collapse: collapse;">
+                        <tr>
+                            <th style="height: 40px; width: 20%; vertical-align: middle; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black; padding: 0px; margin: 0px;">
+                                <span>KUANTUM</span>
+                            </th>
+                            <th style="height: 40px; width: 40%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black; ">
+                                <span>NAMA BARANG</span>
+                            </th>
+                            <th style="height: 40px; width: 20%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">
+                                <div>HARGA</div>
+                            </th>
+                            <th style="height: 40px; width: 20%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border: 1px solid black;">
+                                <div>TOTAL</div>
+                            </th>
+                        </tr>
+                    </table>
+                    <!-- <table style="width:100%; margin-top: 10px; padding: 0px; border-collapse: collapse;">
+                            <tr>
+                                <th style="height: 40px; width: 20%; vertical-align: middle; border: 1px solid black;">
+                                    <span>KUANTUM</span>
+                                </th>
+                                <th style="height: 40px; width: 40%; vertical-align: middle; border: 1px solid black;">
+                                    <span>NAMA BARANG</span>
+                                </th>
+                                <th style="height: 40px; width: 20%; vertical-align: middle; border: 1px solid black;">
+                                    <div>HARGA</div>
+                                </th>
+                                <th style="height: 40px; width: 20%; vertical-align: middle; border: 1px solid black;">
+                                    <div>TOTAL</div>
+                                </th>
+                            </tr>
+                        </table> -->
+                    <t t-set="page" t-value="1"/>
+                    <t t-set="counter" t-value="1"/>
+                    <!-- detil -->
+                    <div t-foreach="doc.order_line" t-as="line">
+                        <table style="width:95%; margin-left: auto; margin-right: auto; border-left: 1px solid black; border-bottom: 1px solid black;border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 20%; border-right: 1px solid black; padding: 0px; margin: 0px;">
+                                    <div style="text-align: center;">
+                                        <span t-out="line.product_qty"/>
+                                        <span/>
+                                        <span t-out="line.product_uom.display_name"/>
+                                    </div>
+                                    <t t-if="line.x_studio_purchase_unit_of_measure">
+                                        <t t-if="line.x_studio_purchase_unit_of_measure.name != line.product_uom.name">
+                                            <!-- ini hanya muncul bila :
+                                                - x_studio_purchase_unit_of_measure ada isinya, dan
+                                                - isinya tidak sama dengan product_uom -->
+                                            <div style="text-align: center;">
+                                                <span t-out="line.x_studio_konversi"/>
+                                                <span t-out="line.x_studio_purchase_unit_of_measure.display_name"/>
+                                            </div>
+                                        </t>
+                                    </t>
+                                </td>
+                                <td style="width: 40%; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                    <!-- <t t-out="line.name"/> -->
+                                    <t t-out="line.product_id.name"/>
+                                </td>
+                                <td style="width: 20%; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                    <table style="width: 100%;border-color: transparent;">
+                                        <tr>
+                                            <td style="width: 20px; text-align: right;">
+                                                <span t-out="doc.currency_id.symbol"/>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <span t-out="line.price_unit" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="width: 20%; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                    <table style="width: 100%;border-color: transparent;">
+                                        <tr>
+                                            <td style="width: 20px; text-align: right">
+                                                <span t-out="doc.currency_id.symbol"/>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <span t-out="line.price_subtotal" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- untuk halaman 1, tiap 12 item berdasarkan ukuran kertas A4 utk style detil ini,
+                                 harus pindah halaman
+                                 untuk halaman berikutnya, 1 page dapat berisi 14 item -->
+                        <t t-set="baris" t-value="0"/>
+                        <t t-if="page &gt; 1">
+                            <t t-set="baris" t-value="14"/>
+                            </t>
+                        <t t-else="">
+                            <t t-set="baris" t-value="12"/>
+                            </t>
+                        <t t-if="counter == baris">
+                            <t t-set="counter" t-value="1"/>
+                            <t t-set="page" t-value="page + 1"/>
+                            <!-- <p style="page-break-before:always;"> </p> -->
+                            <div style="padding: 0px; margin: 0px; dislay: contents;page-break-before: always;"/>
+                            <div class="bg_image" style="height: 1325px; width: 100%; position:absolute;opacity:1;z-index:-1;">
+                                </div>
+                            <!-- Judul : PURCHASE ORDER -->
+                            <div style="height: 130px; text-align: center; line-height: 130px; padding-top: 120px;">
+                                <span style="font-weight: bold; text-decoration: underline; font-size:36px; vertical-align: middle;">
+                                        PURCHASE ORDER
+                                    </span>
+                            </div>
+                            <table style="width:95%; margin-left: auto; margin-right: auto; margin-top: 20px; padding: 0px; border-collapse: collapse;">
+                                <tr>
+                                    <th style="height: 40px; width: 20%; vertical-align: middle; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black; padding: 0px; margin: 0px;">
+                                        <span>KUANTUM</span>
+                                    </th>
+                                    <th style="height: 40px; width: 40%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black; ">
+                                        <span>NAMA BARANG</span>
+                                    </th>
+                                    <th style="height: 40px; width: 20%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border-top: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">
+                                        <div>HARGA</div>
+                                    </th>
+                                    <th style="height: 40px; width: 20%; vertical-align: middle; border-right: 1px solid black; padding: 0px; margin: 0px; border: 1px solid black;">
+                                        <div>TOTAL</div>
+                                    </th>
+                                </tr>
+                            </table>
+                        </t>
+                        <t t-else="">
+                            <t t-set="counter" t-value="counter + 1"/>
+                            </t>
+                    </div>
+                    <!-- total total -->
+                    <table style="width:95%; margin-left: auto; margin-right: auto; border-left: 1px solid black; border-bottom: 1px solid black; border-collapse: collapse;">
+                        <tr>
+                            <!-- ini 60.1 atau 60 sesuaikan dengan yg di atas, miring atau tidak -->
+                            <t t-set="tax_labels" t-value="doc.get_all_tax_labels(doc)"/>
+                            <t t-set="rowspan_count" t-value="len(tax_labels)"/>
+                            <td t-att-rowspan="3+rowspan_count" style="width: 60%; border-right: 1px solid black; padding: 10px; margin: 0px; vertical-align: bottom; text-align: left;">
+                                <t t-set="terus" t-value="true"/>
+                                <t t-if="doc.date_order">
+                                    <t t-set="dateorder" t-value="doc.date_order.strftime('%Y%m%d')"/>
+                                    </t>
+                                <t t-set="kurs_usd" t-value="0"/>
+                                <t t-foreach="request.env['res.currency.rate'].search([])" t-as="obj">
+                                    <!-- <t t-esc="obj.name"/><t t-esc="obj.inverse_company_rate"/> -->
+                                    <t t-if="terus">
+                                        <t t-if="obj.name">
+                                            <t t-set="datekurs" t-value="obj.name.strftime('%Y%m%d')"/>
+                                            <t t-if="obj.currency_id.name == 'USD'">
+                                                <t t-if="dateorder &gt; datekurs">
+                                                    <t t-set="terus" t-value="false"/>
+                                                    <t t-set="kurs_usd" t-value="obj.inverse_company_rate"/>
+                                                    </t>
+                                                <t t-else="">
+                                                    </t>
+                                            </t>
+                                            <t t-else="">
+                                                </t>
+                                        </t>
+                                    </t>
+                                </t>
+                                <div style="height: 100%;">
+                                    <t t-if="doc.currency_id.name != 'IDR'">
+                                        <div>
+                                            <span>Kurs 1 USD =</span>
+                                            <span>
+                                                <t t-out="doc.currency_id.symbol"/>
+                                            </span>
+                                            <span t-esc="kurs_usd" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                        </div>
+                                    </t>
+                                    <div>
+                                        <span>Waktu Pengiriman :</span>
+                                        <span t-esc="formatted_date_planned"/>
+                                    </div>
+                                    <div>
+                                        <span t-out="doc.x_studio_keterangan"/>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 20%; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                    Jumlah Harga Beli
+                                </td>
+                            <td style="width: 20%; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                <table style="width: 100%;border-color: transparent;">
+                                    <tr>
+                                        <td style="width: 20px; text-align: right">
+                                            <span t-out="doc.currency_id.symbol"/>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <!-- 2025, odoo berubah versi -->
+                                            <!-- <span t-esc="tax['amount_untaxed']" t-options='{"widget": "float", "precision": 2}'/> -->
+                                            <span t-esc="tax['base_amount']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 20%; border-top: 1px solid black; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                    DPP Nilai Lain
+                                </td>
+                            <td style="width: 20%; border-top: 1px solid black; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                <table style="width: 100%;border-color: transparent;">
+                                    <tr>
+                                        <td style="width: 20px; text-align: right">
+                                            <span t-out="doc.currency_id.symbol"/>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <t t-set="nilai_dpp_lain" t-value="doc.total_dpp_lain"/>
+                                            <span t-esc="nilai_dpp_lain" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <t t-set="tax_labels" t-value="doc.get_all_tax_labels(doc)"/>
+                        <t t-foreach="tax_labels" t-as="tax_total">
+                            <tr>
+                                <td style="width: 20%; border-top: 1px solid black; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                    <span t-esc="tax_total[0]"/>
+                                </td>
+                                <td style="width: 20%; border-top: 1px solid black; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                    <table style="width: 100%;border-color: transparent;">
+                                        <tr>
+                                            <td style="width: 20px; text-align: right">
+                                                <span t-out="doc.currency_id.symbol"/>
+                                            </td>
+                                            <td style="text-align: right;">
+                                                <t t-set="amount_tax" t-value="tax_total[1]"/>
+                                                <span t-esc="amount_tax" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                                <!--<span t-esc="'{:,}'.format(amount_tax)"/>-->
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr>
+                            <td style="width: 20%; border-top: 1px solid black; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                    Total
+                                </td>
+                            <td style="width: 20%; border-top: 1px solid black; border-right: 1px solid black; vertical-align: middle; padding: 10px;">
+                                <table style="width: 100%;border-color: transparent;">
+                                    <tr>
+                                        <td style="width: 20px; text-align: right">
+                                            <span t-out="doc.currency_id.symbol"/>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <span t-esc="tax['amount_total']" t-options='{"widget": "float", "precision": 2}'/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <!-- perkiraan pindah page
+                             jadi kalau jumlah item = 4 (counter = 5) pindah page
+                        -->
+                    <t t-if="page &gt; 1">
+                        <t t-if="counter &gt; 8">
+                            <!-- pindah page -->
+                            <!-- <p style="page-break-before:always;"> </p> -->
+                            <div style="padding: 0px; margin: 0px; dislay: contents;page-break-before: always;"/>
+                            <div class="bg_image" style="height: 1325px; width: 100%; position:absolute;opacity:1;z-index:-1;">
+                                </div>
+                            <!-- untuk memberi jarak antara kondisi dengan heading -->
+                            <div style="padding-top: 250px"/>
+                        </t>
+                    </t>
+                    <t t-else="">
+                        <t t-if="counter &gt; 4">
+                            <!-- pindah page -->
+                            <!-- <p style="page-break-before:always;"> </p> -->
+                            <div style="padding: 0px; margin: 0px; dislay: contents;page-break-before: always;"/>
+                            <div class="bg_image" style="height: 1325px; width: 100%; position:absolute;opacity:1;z-index:-1;">
+                                </div>
+                            <!-- untuk memberi jarak antara kondisi dengan heading -->
+                            <div style="padding-top: 250px"/>
+                        </t>
+                    </t>
+                    <div style="margin-top: 15px; margin-left: 25px;">
+                            Kondisi :
+                        </div>
+                    <!-- deskripsi kondisi -->
+                    <!-- <table style="width:95%; margin-left: auto; margin-right: auto; margin-top: 10px;border-color: transparent;"> -->
+                    <!-- <table style="width:95%; margin-left: auto; margin-right: auto; margin-top: 10px; border-collapse: separate; border-spacing: 10px;"> -->
+                    <table style="width:95%; margin-left: auto; margin-right: auto; margin-top: 10px; border-color: transparent; border-collapse: separate;">
+                        <tr>
+                            <td style="width: 25px; text-align: left; vertical-align: top;">
+                                    1.
+                                </td>
+                            <td>
+                                <t t-raw="doc.x_studio_kondisi_1"/>
+                                <!-- <div>Harap Barang Dikirim ke alamat Factory :</div>
+                                    <div style="margin-top: 7px;"><strong>Kawasan Pergudangan dan Industri Tunas Bitung</strong></div>
+                                    <div style="margin-top: 5px;"><strong>Jl. Raya Serang KM 13,8 Kavling E.6 Cikupa Pasir Jaya</strong></div>
+                                    <div style="margin-top: 5px;"><strong>Desa Sukadamai Kecamatan Cikupa, Kabupaten Tangerang, Banten</strong></div>
+                                    <div style="margin-top: 5px;"><strong>attn. Bp. Ujang, Telp. 0813 1412 3784</strong></div> -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <!-- <td style="width: 25px; text-align: left; border: 1px solid black; vertical-align: top; padding: 10px;"> -->
+                            <td style="width: 25px; text-align: left; vertical-align: top;">
+                                    2.
+                                </td>
+                            <td>
+                                <t t-raw="doc.x_studio_kondisi_2"/>
+                            </td>
+                            <!-- <td style="padding-top: 17px;">
+                                    <div><span>Harap Faktur dan surat jalan a/n </span><strong>PT. TIRTA ABADI LESTARI IDEXINDO</strong></div>
+                                    <div style="margin-top: 5px;">dikirim ke office (alamat PO)</div>
+                                    <div style="margin-top: 8px;"><strong>Kompleks Ruko Graha Mas Blok B-18</strong></div>
+                                    <div style="margin-top: 5px;"><strong>Jalan Raya Perjuangan Kebon Jeruk</strong></div>
+                                </td> -->
+                        </tr>
+                    </table>
+                    <!-- tanda tangan -->
+                    <table style="width:95%; margin-left: auto; margin-right: auto; margin-top: 20px; border-collapse: collapse;">
+                        <tr>
+                            <td colspan="2" id="notes">
+                                <t t-raw="doc.notes"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%; border: 1px solid black;">
+                                <div style="text-align: center;">
+                                    <span>Purchasing,</span>
+                                </div>
+                                <div style="height: 100px"/>
+                                <div style="text-align: center;">
+                                    <span style="font-weight: bold; text-decoration: underline; font-size:16px;">
+                                        <t t-out="doc.user_id.display_name"/>
+                                    </span>
+                                </div>
+                            </td>
+                            <td style="width: 50%; border: 1px solid black;">
+                                <div style="text-align: center;">
+                                    <span>Disetujui Oleh,</span>
+                                </div>
+                                <div style="height: 100px"/>
+                                <div style="text-align: center;">
+                                    <span style="font-weight: bold; text-decoration: underline; font-size:16px;">
+                                        <t t-out="doc.x_studio_disetujui_oleh"/>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- Footer part: repeated in each page -->
+                <!-- tidak bisa mengetahui page terakhir atau tidak di footer
+                         karena, footer di render setelah content dari page -->
+                <!-- oleh sebab itu, footer digunkan hanya untuk banner gambar saja -->
+                <!-- <div class="footer">
+                        <div style="height: 50px; border:1px solid gray;">
+                            image placed here
+                        </div>
+                    </div> -->
+            </t>
+        </t>
+    </template>
+</odoo>
