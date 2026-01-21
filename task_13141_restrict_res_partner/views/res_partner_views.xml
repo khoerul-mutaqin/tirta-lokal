@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <record model="ir.rule" id="x_granted_users_ids">
+    <!-- user access -->
+    <record model="ir.rule" id="x_granted_users_ids_users">
         <field name="name">res.partner granted users</field>
         <field name="model_id" ref="model_res_partner" />
-        <field name="global" eval="True" />
+        <field name="groups" ref="base.group_user" />
         <field
             name="domain_force"
         >['|',('id', '=', user.partner_id.id),('x_granted_users_ids', 'in', user.id)]</field>
+    </record>
+
+    <!-- admin access -->
+    <record model="ir.rule" id="x_granted_users_ids)admin">
+        <field name="name">res.partner granted users</field>
+        <field name="model_id" ref="model_res_partner" />
+        <field name="groups" ref="base.group_erp_manager" />
+        <field
+            name="domain_force"
+        >[(1, '=', 1)]</field>
     </record>
 
 
