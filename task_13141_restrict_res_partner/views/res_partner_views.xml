@@ -11,8 +11,8 @@
     </record>
 
     <!-- admin access -->
-    <record model="ir.rule" id="x_granted_users_ids)admin">
-        <field name="name">res.partner granted users</field>
+    <record model="ir.rule" id="x_granted_users_ids_admin">
+        <field name="name">res.partner granted admin</field>
         <field name="model_id" ref="model_res_partner" />
         <field name="groups" ref="base.group_erp_manager" />
         <field
